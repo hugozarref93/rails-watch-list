@@ -1,32 +1,40 @@
 class ListsController < ApplicationController
+  before_action :set_list, only: [:show, :destroy]
+
   def index
-    # Implement logic to retrieve all lists
     @lists = List.all
   end
 
   def show
-    # Implement logic to retrieve a specific list by id
-    @list = List.find(params[:id])
+    @bookmark = Bookmark.new
+    @review = Review.new(list: @list)
   end
 
   def new
-    # Initialize a new empty list
     @list = List.new
   end
 
   def create
-    # Create a new list with data from the form
     @list = List.new(list_params)
     if @list.save
-      redirect_to lists_path
+      redirect_to list_path(@list)
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    @list.destroy
+    redirect_to lists_path, status: :see_other
   end
 
   private
 
+  def set_list
+    @list = List.find(params[:id])
+  end
+
   def list_params
-    params.require(:list).permit(:name, :description) # Adjust the permitted parameters as needed
+    params.require(:list).permit(:name, :photo)
   end
 end
